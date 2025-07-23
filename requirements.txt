@@ -6,3 +6,4 @@ joblib
 mlflow
 pandas
 pytest
+httpx
