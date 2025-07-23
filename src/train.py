@@ -5,7 +5,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 import mlflow
 
-
+pd.set_option('future.no_silent_downcasting', True)
 # Enable autologging for scikit-learn
 mlflow.sklearn.autolog()
 # Load and preprocess the data
