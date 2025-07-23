@@ -5,9 +5,22 @@ import mlflow.sklearn
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 import os
+import subprocess
 
 # Set MLflow experiment for tracking
 mlflow.set_experiment("Housing_Price_Prediction")
+
+# Function to get DVC version (Git commit hash) of the dataset
+def get_dvc_version(file_path):
+    try:
+        # Get the Git commit hash associated with the DVC-tracked file
+        result = subprocess.run(
+            ["git", "log", "-1", "--pretty=%H", "--", f"{file_path}.dvc"],
+            capture_output=True, text=True, check=True
+        )
+        return result.stdout.strip()
+    except subprocess.CalledProcessError:
+        return "unknown"
 
 # Load and preprocess the data
 data = pd.read_csv("data/housing.csv")
@@ -38,6 +51,9 @@ hyperparams = {
     "fit_intercept": True
 }
 
+# Get dataset version
+dataset_version = get_dvc_version("data/housing.csv")
+
 # Start MLflow run for experiment tracking
 with mlflow.start_run(run_name="Linear_Regression_Run"):
     # Enable autologging for scikit-learn
@@ -46,10 +62,11 @@ with mlflow.start_run(run_name="Linear_Regression_Run"):
     # Log hyperparameters
     mlflow.log_params(hyperparams)
     
-    # Set tags for additional metadata
+    # Set tags for additional metadata, including dataset version
     mlflow.set_tags({
         "model_type": "LinearRegression",
         "dataset": "housing.csv",
+        "dataset_version": dataset_version,
         "preprocessor": "manual_encoding"
     })
     
@@ -84,7 +101,8 @@ with mlflow.start_run(run_name="Linear_Regression_Run"):
     print(f"Training accuracy: {train_score:.3f}")
     print(f"Test accuracy: {test_score:.3f}")
     print(f"Model registered with version: {registered_model.version}")
+    print(f"Dataset version (DVC): {dataset_version}")
 
 # Clean up temporary split files
 os.remove("train_split.csv")
-os.remove("test_split.csv") 
+os.remove("test_split.csv")
