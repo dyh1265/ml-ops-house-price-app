@@ -4,3 +4,4 @@
 model.pkl
 app.*
 predict.*
+/minio_data/
