@@ -155,3 +155,59 @@ minikube delete --profile=minikube
 ## ✅ Summary
 This setup demonstrates a full **MLOps lifecycle**:  
 data → model → tracking → packaging → orchestration — all reproducible on local infrastructure.
+
+
+TODO: 
+Missing critical components preventing full MLOps workflow:
+
+1. **MLflow Tracking Integration**
+
+   * Server setup script or Docker service (currently only manual command).
+   * `mlflow.set_tracking_uri()` or `.env` configuration in code.
+   * No experiment registration or logging structure (`mlflow.log_params`, `mlflow.log_metrics`).
+
+2. **Model Registry / Artifact Management**
+
+   * MinIO config exists, but not used programmatically.
+   * Missing code to log model artifacts to MLflow (`mlflow.sklearn.log_model`).
+
+3. **CI/CD Pipeline**
+
+   * No automated test runner (GitHub Actions or GitLab CI).
+   * No image build–push–deploy pipeline.
+
+4. **Kubernetes Integration**
+
+   * Working manifest but no Ingress or persistent storage.
+   * No Helm chart or namespace configuration.
+
+5. **Prediction API / Streamlit separation**
+
+   * API for inference (`FastAPI`) replaced by Streamlit UI.
+   * Need REST endpoint for programmatic access (model monitoring, A/B tests).
+
+6. **Unit and Integration Tests**
+
+   * Tests exist but cover only API validation.
+   * No training pipeline or MLflow logging tests.
+
+7. **Environment Definition**
+
+   * Missing `.env` and `.env.example` for credentials (MinIO, MLflow, DB).
+   * No `Makefile` for standardizing workflow (`make train`, `make deploy`).
+
+8. **Documentation**
+
+   * README lacks architecture diagram, environment variable list, and deployment flow diagram.
+
+9. **Monitoring / Logging**
+
+   * No Prometheus/Grafana integration or even basic Streamlit logs persisted.
+
+10. **Reproducibility**
+
+* No `dvc.yaml` defining training pipeline stages (`prepare`, `train`, `evaluate`).
+* No versioning for datasets or models beyond a single `.dvc` file.
+
+Your setup runs but isn’t production-ready — missing automation, configuration abstraction, and experiment traceability.
+
