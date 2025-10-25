@@ -1,5 +1,5 @@
 import streamlit as st
-from src.predict import predict
+from predict import predict
 
 st.set_page_config(page_title="House Price Prediction", layout="centered")
 

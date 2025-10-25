@@ -77,6 +77,8 @@ Credentials → `admin / admin123`
 
 ## ☸️ Kubernetes Deployment with Minikube
 
+
+
 ### Install Dependencies
 ```bash
 sudo apt update
@@ -96,8 +98,13 @@ sudo install kubectl /usr/local/bin/
 ```
 
 ### Start Minikube
+# first create a new user
+adduser [username]
+su - [username]
+sudo usermod -aG docker $USER && newgrp docker
+
 ```bash
-minikube start --driver=docker --force --memory=2000m
+minikube start --driver=docker --memory=2000m --apiserver-ips=0.0.0.0 --apiserver-port=8443
 ```
 
 ---
