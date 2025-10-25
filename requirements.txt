@@ -8,3 +8,7 @@ pandas
 pytest
 httpx
 dvc
+boto3
+numpy
+streamlit
+

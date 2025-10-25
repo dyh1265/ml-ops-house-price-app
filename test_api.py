@@ -1,4 +1,7 @@
 import unittest
+import os
+os.environ["PYTEST_CURRENT_TEST"] = "1"  # prevent Streamlit UI from starting
+
 from fastapi.testclient import TestClient
 from src.app import app
 from src.predict import predict

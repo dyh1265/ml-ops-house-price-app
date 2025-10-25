@@ -11,7 +11,7 @@ class TestTraining(unittest.TestCase):
             os.remove(model_path)
 
         # Run the training script
-        subprocess.run(["python", "src/train.py"], check=True)
+        subprocess.run(["python3", "src/train.py"], check=True)
 
         # Check if model.pkl was created
         self.assertTrue(os.path.exists(model_path), "model.pkl was not created after training")

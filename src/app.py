@@ -1,32 +1,50 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
+import streamlit as st
 from src.predict import predict
 
-app = FastAPI()
+st.set_page_config(page_title="House Price Prediction", layout="centered")
 
-class HouseData(BaseModel):
-    area: float = Field(..., ge=0.0, description="Area of the house in square units")
-    bedrooms: float = Field(..., ge=0.0, description="Number of bedrooms")
-    bathrooms: float = Field(..., ge=0.0, description="Number of bathrooms")
-    stories: float = Field(..., ge=0.0, description="Number of stories")
-    mainroad: float = Field(..., ge=0.0, le=1.0, description="Binary: 1 if on main road, 0 otherwise")
-    guestroom: float = Field(..., ge=0.0, le=1.0, description="Binary: 1 if guestroom, 0 otherwise")
-    basement: float = Field(..., ge=0.0, le=1.0, description="Binary: 1 if basement, 0 otherwise")
-    hotwaterheating: float = Field(..., ge=0.0, le=1.0, description="Binary: 1 if hot water heating, 0 otherwise")
-    airconditioning: float = Field(..., ge=0.0, le=1.0, description="Binary: 1 if air conditioning, 0 otherwise")
-    parking: float = Field(..., ge=0.0, description="Number of parking spaces")
-    prefarea: float = Field(..., ge=0.0, le=1.0, description="Binary: 1 if preferred area, 0 otherwise")
-    furnishingstatus: float = Field(..., ge=0.0, le=2.0, description="Furnishing status: 0 (unfurnished), 1 (semi-furnished), 2 (furnished)")
+st.title("🏠 House Price Prediction App")
+st.write("Input house details below to predict the price.")
 
-@app.post("/predict")
-def get_prediction(data: HouseData):
+# Input fields
+area = st.number_input("Area (sq units)", min_value=0.0, step=100.0)
+bedrooms = st.number_input("Bedrooms", min_value=0.0, step=1.0)
+bathrooms = st.number_input("Bathrooms", min_value=0.0, step=1.0)
+stories = st.number_input("Stories", min_value=0.0, step=1.0)
+mainroad = st.selectbox("Main road", [0, 1])
+guestroom = st.selectbox("Guestroom", [0, 1])
+basement = st.selectbox("Basement", [0, 1])
+hotwaterheating = st.selectbox("Hot water heating", [0, 1])
+airconditioning = st.selectbox("Air conditioning", [0, 1])
+parking = st.number_input("Parking spaces", min_value=0.0, step=1.0)
+prefarea = st.selectbox("Preferred area", [0, 1])
+furnishingstatus = st.selectbox(
+    "Furnishing status", 
+    options=[0, 1, 2],
+    format_func=lambda x: ["Unfurnished", "Semi-furnished", "Furnished"][x]
+)
+
+# Predict button
+if st.button("Predict Price"):
+    data = {
+        "area": area,
+        "bedrooms": bedrooms,
+        "bathrooms": bathrooms,
+        "stories": stories,
+        "mainroad": mainroad,
+        "guestroom": guestroom,
+        "basement": basement,
+        "hotwaterheating": hotwaterheating,
+        "airconditioning": airconditioning,
+        "parking": parking,
+        "prefarea": prefarea,
+        "furnishingstatus": furnishingstatus
+    }
+
     try:
-        data_dict = data.model_dump()
-        result = predict(data_dict)
-        return {"predicted_price": result}
-    except (KeyError, ValueError) as e:
-        raise HTTPException(status_code=400, detail={"error": str(e)})
+        price = predict(data)
+        st.success(f"Predicted house price: ₹{price:,.2f}")
     except FileNotFoundError:
-        raise HTTPException(status_code=500, detail={"error": "Model file not found"})
+        st.error("Model file not found. Train the model first.")
     except Exception as e:
-        raise HTTPException(status_code=500, detail={"error": f"Prediction failed: {str(e)}"})
+        st.error(f"Prediction failed: {str(e)}")

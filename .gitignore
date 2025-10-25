@@ -5,3 +5,7 @@ model.pkl
 app.*
 predict.*
 /minio_data/
+*.db
+*.log
+kubectl
+m
