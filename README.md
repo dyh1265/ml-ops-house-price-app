@@ -6,12 +6,39 @@ It integrates **Streamlit**, **DVC**, **MLflow**, **MinIO (S3)**, and **Kubernet
 
 ---
 
+## ⚙️ Configuration
+
+### Environment Variables
+The project uses a `.env` file for configuration. Key variables include:
+
+| Variable | Default Value | Description |
+|----------|---------------|-------------|
+| `MLFLOW_TRACKING_URI` | `http://127.0.0.1:5000` | MLflow tracking server URL |
+| `MLFLOW_S3_ENDPOINT_URL` | `http://localhost:9000` | MinIO S3-compatible storage endpoint |
+| `AWS_ACCESS_KEY_ID` | `admin` | MinIO access key |
+| `AWS_SECRET_ACCESS_KEY` | `admin123` | MinIO secret key |
+| `MLFLOW_EXPERIMENT_NAME` | `Housing_Price_Prediction` | MLflow experiment name |
+| `MLFLOW_MODEL_NAME` | `HousingPriceModel` | MLflow registered model name |
+
+---
+
 ## 🔧 Local Development
 
 ### Run the Streamlit App
 ```bash
-streamlit run app.py
+streamlit run src/app.py
 ```
+
+### Train the Model
+```bash
+python src/train.py
+```
+This will:
+- Load and preprocess the housing dataset
+- Train a Linear Regression model
+- Log metrics, parameters, and artifacts to MLflow
+- Register the model in MLflow Model Registry
+- Save the model as `model.pkl`
 
 ### Run Tests
 ```bash
@@ -164,57 +191,55 @@ This setup demonstrates a full **MLOps lifecycle**:
 data → model → tracking → packaging → orchestration — all reproducible on local infrastructure.
 
 
-TODO: 
-Missing critical components preventing full MLOps workflow:
 
-1. **MLflow Tracking Integration**
+---
 
-   * Server setup script or Docker service (currently only manual command).
-   * `mlflow.set_tracking_uri()` or `.env` configuration in code.
-   * No experiment registration or logging structure (`mlflow.log_params`, `mlflow.log_metrics`).
+## ✨ Implemented Features
 
-2. **Model Registry / Artifact Management**
+This project includes the following MLOps components:
 
-   * MinIO config exists, but not used programmatically.
-   * Missing code to log model artifacts to MLflow (`mlflow.sklearn.log_model`).
+### 🔬 Experiment Tracking
+- **MLflow Integration**: Full experiment tracking with metrics, parameters, and artifacts
+  - Configured via `.env` file for easy environment management
+  - Automatic model logging with `mlflow.sklearn.autolog()`
+  - Model registry for versioning (`HousingPriceModel`)
+  - Dataset versioning tracked via DVC and Git commit hashes
 
-3. **CI/CD Pipeline**
+### �� Data & Model Versioning
+- **DVC Pipeline**: Configured in `dvc.yaml` with training stage
+- **MinIO S3 Storage**: Local S3-compatible storage for MLflow artifacts
+- **Git Integration**: Version control for code and DVC metadata
 
-   * No automated test runner (GitHub Actions or GitLab CI).
-   * No image build–push–deploy pipeline.
+### 🔄 CI/CD Pipeline
+- **GitHub Actions Workflow**: Automated testing and deployment
+  - Linting with `flake8`
+  - Unit tests with `pytest`
+  - Docker image build and push
+  - Kubernetes deployment automation
 
-4. **Kubernetes Integration**
+### 🧪 Testing
+- **Unit Tests**: Comprehensive test coverage for prediction logic
+- **Integration Tests**: Model training validation
+- Located in `tests/` directory
 
-   * Working manifest but no Ingress or persistent storage.
-   * No Helm chart or namespace configuration.
+### 🚀 Deployment
+- **Docker**: Containerized Streamlit application
+- **Kubernetes**: Production-ready deployment with 3 replicas
+- **Load Balancer**: Service configuration for external access
 
-5. **Prediction API / Streamlit separation**
+### 🎯 Web Interface
+- **Streamlit App**: Interactive UI for house price predictions
+- Real-time predictions using trained ML model
+- User-friendly input forms for all features
 
-   * API for inference (`FastAPI`) replaced by Streamlit UI.
-   * Need REST endpoint for programmatic access (model monitoring, A/B tests).
+---
 
-6. **Unit and Integration Tests**
+## 🔮 Future Enhancements
 
-   * Tests exist but cover only API validation.
-   * No training pipeline or MLflow logging tests.
+Potential improvements for production readiness:
 
-7. **Environment Definition**
-
-   * Missing `.env` and `.env.example` for credentials (MinIO, MLflow, DB).
-   * No `Makefile` for standardizing workflow (`make train`, `make deploy`).
-
-8. **Documentation**
-
-   * README lacks architecture diagram, environment variable list, and deployment flow diagram.
-
-9. **Monitoring / Logging**
-
-   * No Prometheus/Grafana integration or even basic Streamlit logs persisted.
-
-10. **Reproducibility**
-
-* No `dvc.yaml` defining training pipeline stages (`prepare`, `train`, `evaluate`).
-* No versioning for datasets or models beyond a single `.dvc` file.
-
-Your setup runs but isn’t production-ready — missing automation, configuration abstraction, and experiment traceability.
-
+- **Monitoring**: Add Prometheus/Grafana for metrics and observability
+- **API Layer**: Separate REST API (FastAPI) for programmatic access
+- **Advanced K8s**: Ingress configuration, persistent volumes, Helm charts
+- **Extended Testing**: Training pipeline tests, MLflow integration tests
+- **Documentation**: Architecture diagrams, API documentation
